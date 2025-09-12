@@ -1,0 +1,3 @@
+// NOTE: Prisma is currently configured at backend/prisma/schema.prisma.
+# If you move the schema here, update your Prisma config and scripts accordingly.
+
