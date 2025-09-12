@@ -1,0 +1,17 @@
+{
+  "name": "templink",
+  "private": true,
+  "workspaces": ["frontend", "backend", "shared"],
+  "scripts": {
+    "dev": "concurrently -n FE,BE -c blue,green \"pnpm --filter frontend dev\" \"pnpm --filter backend dev\"",
+    "dev:fe": "pnpm --filter frontend dev",
+    "dev:be": "pnpm --filter backend dev",
+    "build": "pnpm -r build",
+    "cleanup": "pnpm --filter backend cleanup",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
