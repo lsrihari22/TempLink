@@ -1,6 +1,8 @@
+import { env } from "../env";
+
 export type FileRecord = {
   token: string;
-  storagePath: string;
+  storageKey: string;
   originalName: string;
   mimeType: string;
   size: number;
@@ -32,7 +34,8 @@ function isExpired(r: FileRecord): boolean {
 
 export function create(input: {
   token: string;
-  storagePath: string;
+  storageKey?: string;
+  storagePath?: string; // legacy support
   originalName: string;
   mimeType: string;
   size: number;
@@ -42,16 +45,16 @@ export function create(input: {
 }): FileRecord {
   const token = input.token;
   const createdAt = new Date();
-  const expiresAt = input.expiresAt ?? new Date(Date.now() + (input.expiresInMs ?? 24 * 60 * 60 * 1000));
+  const expiresAt = input.expiresAt ?? new Date(Date.now() + (input.expiresInMs ?? env.DEFAULT_EXPIRY_HOURS * 60 * 60 * 1000));
   const record: FileRecord = {
     token,
-    storagePath: input.storagePath,
+    storageKey: (input as any).storageKey ?? (input as any).storagePath,
     originalName: input.originalName,
     mimeType: input.mimeType,
     size: input.size,
     createdAt,
     expiresAt,
-    maxDownloads: input.maxDownloads ?? 1,
+    maxDownloads: input.maxDownloads ?? env.DEFAULT_MAX_DOWNLOADS,
     downloadCount: 0,
     isDeleted: false,
   };

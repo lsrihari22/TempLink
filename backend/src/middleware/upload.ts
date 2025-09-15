@@ -2,7 +2,8 @@
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url'
+import { fileURLToPath } from 'url';
+import { env } from '../env';
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -21,15 +22,22 @@ const storage = multer.diskStorage({
   }
 })
 
-const limits = { fileSize: 50 * 1024 * 1024 }; // 50MB limit
-const fileFilter = (req: any, file: any, cb: any) => {
-  const allowedTypes = ['image/', 'application/pdf']; //Add more types as needed
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only .jpeg, .png, and .pdf files allowed!'), false);
-    }
-}
+const limits = { fileSize: env.MAX_FILE_SIZE_BYTES };
+const fileFilter: import('multer').Options['fileFilter'] = (_req, file, cb) => {
+  const mime = String(file.mimetype || '').toLowerCase();
+  const ext = path.extname(file.originalname || '').toLowerCase();
+
+  const mimeAllowed = env.ALLOWED_MIME_SET ? env.ALLOWED_MIME_SET.has(mime) : true;
+  const extAllowed = env.ALLOWED_EXT_SET ? env.ALLOWED_EXT_SET.has(ext) : true;
+
+  if (!mimeAllowed || !extAllowed) {
+    const err: any = new Error('Invalid file type');
+    err.name = 'MulterError';
+    err.code = 'INVALID_FILE_TYPE';
+    return cb(err);
+  }
+  return cb(null, true);
+};
 
 const upload = multer({ storage, limits, fileFilter });
 

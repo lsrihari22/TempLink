@@ -8,12 +8,12 @@ router.get('/file/:token/info', (req: Request, res: Response) => {
   const { token } = req.params;
   const info = getInfo(token);
   if (!info) {
-    return res.status(404).json({ error: 'File not found' });
+    return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'File not found' } });
   }
   if (info.status !== 'active') {
-    return res.status(410).json({ error: `File ${info.status}`, info });
+    return res.status(410).json({ error: { code: 'GONE', message: `File ${info.status}` }, data: info });
   }
-  return res.status(200).json({ info });
+  return res.status(200).json({ data: info });
 });
 
 export default router;

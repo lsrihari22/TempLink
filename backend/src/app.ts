@@ -17,20 +17,28 @@ app.get('/healthz', (_req, res) => {
 // Rate limiting before route handlers
 app.use('/api', apiLimiter);
 app.use('/api/upload', uploadLimiter);
-app.use('/api/file', downloadLimiter);
+app.use('/api/file/:token/download', downloadLimiter);
 
 // API routes
 app.use('/api', uploadRoutes);
 app.use('/api', downloadRoutes);
 app.use('/api', infoRoutes);
 
+// 404 for unknown routes
+app.use((req, res) => {
+  return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Route not found' } });
+});
+
+// Global error handler
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   if (err && err.name === 'MulterError') {
-    return res.status(400).json({ error: err.message });
+    const code = err.code === 'LIMIT_FILE_SIZE' || err.code === 'INVALID_FILE_TYPE' ? 'INVALID_FILE' : 'BAD_REQUEST';
+    const message = err.message || 'Invalid upload';
+    return res.status(400).json({ error: { code, message } });
   }
   if (err) {
     console.error(err);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ error: { code: 'INTERNAL', message: 'Internal Server Error' } });
   }
 });
 
