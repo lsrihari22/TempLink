@@ -7,6 +7,7 @@ const server = app.listen(PORT, () => {
 });
 
 let isShuttingDown = false;
+let isDraining = false;
 
 async function gracefulShutdown(signal: string) {
   if (isShuttingDown) return;
@@ -18,6 +19,9 @@ async function gracefulShutdown(signal: string) {
     console.error('Forced shutdown after timeout.');
     process.exit(1);
   }, FORCE_TIMEOUT_MS);
+
+  isDraining = true;
+  app.locals.isDraining = true;
 
   server.close(async (err?: Error) => {
     if (err) {

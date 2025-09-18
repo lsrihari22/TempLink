@@ -6,20 +6,24 @@ import { validateTokenParam } from '../middleware/validation';
 
 const router = Router();
 
-router.get('/file/:token/download', validateTokenParam, (req: Request, res: Response) => {
+router.get('/file/:token/download', validateTokenParam, async (req: Request, res: Response) => {
   const { token } = req.params;
-  const result = consumeDownload(token);
+  const result = await consumeDownload(token);
 
   if (!result) {
-    const rec = get(token);
-    if (!rec) {
+    const row = await get(token);
+    if (!row) {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'File not found' } });
+    }else if (row.isDeleted) {
+      return res.status(410).json({ error: { code: 'DELETED', message: 'File has been deleted' } });
+    }else if (row.expiresAt <= new Date()) {
+      return res.status(410).json({ error: { code: 'EXPIRED', message: 'File has expired' } });
     }
-    return res.status(410).json({ error: { code: 'GONE', message: 'File unavailable (expired, deleted, or download limit reached)' } });
+    return res.status(410).json({ error: { code: 'LIMIT_REACHED', message: 'File download limit reached' } });
   }
 
   const { record, shouldDelete } = result;
-  const safeName = path.basename(record.originalName).replace(/"/g, '');
+  const safeName = path.basename(record.originalName).replace(/[\r\n\t\0"<>:|?*]+/g, '');
 
   res.setHeader('Content-Type', record.mimeType);
   if (record.size) res.setHeader('Content-Length', String(record.size));

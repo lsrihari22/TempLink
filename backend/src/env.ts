@@ -8,6 +8,7 @@ type EnvConfig = {
   DEFAULT_EXPIRY_HOURS: number;
   DEFAULT_MAX_DOWNLOADS: number;
   MAX_DOWNLOADS_CAP: number;
+  CORS_ORIGINS?: Set<string> | null;
 };
 
 
@@ -35,6 +36,7 @@ const DEFAULT_MAX_DOWNLOADS = toInt(process.env.DEFAULT_MAX_DOWNLOADS, 1);
 const MAX_DOWNLOADS_CAP = toInt(process.env.MAX_DOWNLOADS_CAP, 10);
 const STORAGE_TYPE = (process.env.STORAGE_TYPE?.trim().toLowerCase() === 's3' ? 's3' : 'local') as 'local' | 's3';
 const STORAGE_LOCAL_DIR = process.env.STORAGE_LOCAL_DIR?.trim() || pathResolveUploads();
+const CORS_ORIGINS = toListSet(process.env.CORS_ORIGINS);
 
 function pathResolveUploads() {
   // Default to project uploads directory
@@ -51,4 +53,5 @@ export const env: EnvConfig = {
   DEFAULT_EXPIRY_HOURS,
   DEFAULT_MAX_DOWNLOADS,
   MAX_DOWNLOADS_CAP,
+  CORS_ORIGINS,
 };

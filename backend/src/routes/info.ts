@@ -5,9 +5,9 @@ import { validateTokenParam } from '../middleware/validation';
 const router = Router();
 
 // GET /api/file/:token/info
-router.get('/file/:token/info', validateTokenParam, (req: Request, res: Response) => {
+router.get('/file/:token/info', validateTokenParam, async (req: Request, res: Response) => {
   const { token } = req.params;
-  const info = getInfo(token);
+  const info = await getInfo(token);
   if (!info) {
     return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'File not found' } });
   }

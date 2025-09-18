@@ -7,6 +7,7 @@ import downloadRoutes from './routes/download';
 import infoRoutes from './routes/info';
 import { apiLimiter, downloadLimiter, uploadLimiter } from './middleware/rateLimit';
 import { prisma } from './database/client';
+import { env } from './env';
 
 const app = express();
 
@@ -15,15 +16,29 @@ app.set('trust proxy', 1);
 
 // Security, CORS, and request logging
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const allowed = env.CORS_ORIGINS;
+      if (!allowed || allowed.size === 0) return callback(null, false);
+      if (!origin) return callback(null, true); // non-browser or same-origin
+      const ok = allowed.has(String(origin).toLowerCase());
+      return callback(null, ok);
+    },
+    credentials: true,
+  })
+);
 app.use(morgan('combined'));
 
 app.get('/healthz', (_req, res) => {
   res.status(200).send('OK');
 });
 
-app.get('/readyz', async (_req, res) => {
+app.get('/readyz', async (req, res) => {
   try {
+    if (req.app.locals?.isDraining) {
+      return res.status(503).send('draining');
+    }
     // Simple DB ping
     await prisma.$queryRaw`SELECT 1`;
     res.status(200).send('ok');

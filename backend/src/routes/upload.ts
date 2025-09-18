@@ -21,7 +21,7 @@ router.post('/upload', upload.single('file'), validateUploadOptions, async (req:
     originalName: f.originalname,
     mimeType: f.mimetype,
   });
-  const record = fileService.create({
+  const record = await fileService.create({
     token,
     storageKey: saved.storageKey,
     originalName: f.originalname,
