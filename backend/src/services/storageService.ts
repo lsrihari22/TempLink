@@ -42,7 +42,6 @@ function safeJoin(baseDir: string, key: string): string {
 }
 
 function toPosixKey(...parts: string[]): string {
-  // Build a posix-style key regardless of OS
   return parts.join('/').replace(/\\+/g, '/');
 }
 

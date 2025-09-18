@@ -2,10 +2,11 @@ import { Router, Request, Response } from 'express';
 import path from 'path';
 import { consumeDownload, get, markDeleted } from '../services/fileService';
 import { storageService } from '../services/storageService';
+import { validateTokenParam } from '../middleware/validation';
 
 const router = Router();
 
-router.get('/file/:token/download', (req: Request, res: Response) => {
+router.get('/file/:token/download', validateTokenParam, (req: Request, res: Response) => {
   const { token } = req.params;
   const result = consumeDownload(token);
 

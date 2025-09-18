@@ -1,10 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { getInfo } from '../services/fileService';
+import { validateTokenParam } from '../middleware/validation';
 
 const router = Router();
 
 // GET /api/file/:token/info
-router.get('/file/:token/info', (req: Request, res: Response) => {
+router.get('/file/:token/info', validateTokenParam, (req: Request, res: Response) => {
   const { token } = req.params;
   const info = getInfo(token);
   if (!info) {

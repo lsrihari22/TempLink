@@ -1,17 +1,36 @@
 import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
 import uploadRoutes from './routes/upload';
 import downloadRoutes from './routes/download';
 import infoRoutes from './routes/info';
 import { apiLimiter, downloadLimiter, uploadLimiter } from './middleware/rateLimit';
+import { prisma } from './database/client';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.set('trust proxy', 1);
 
+// Security, CORS, and request logging
+app.use(helmet());
+app.use(cors());
+app.use(morgan('combined'));
+
 app.get('/healthz', (_req, res) => {
   res.status(200).send('OK');
+});
+
+app.get('/readyz', async (_req, res) => {
+  try {
+    // Simple DB ping
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).send('ok');
+  } catch (err) {
+    console.error('DB not reachable:', err);
+    res.status(500).send('db not ready');
+  }
 });
 
 // Rate limiting before route handlers
@@ -40,10 +59,6 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
     console.error(err);
     return res.status(500).json({ error: { code: 'INTERNAL', message: 'Internal Server Error' } });
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
 });
 
 export default app;
