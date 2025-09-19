@@ -1,10 +1,14 @@
 import app from './app';
 import { prisma } from './database/client';
+import { startCleanup, stopCleanup } from './jobs/cleanup';
 
 const PORT = Number(process.env.PORT || 3000);
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+// Start background cleanup job
+startCleanup();
 
 let isShuttingDown = false;
 let isDraining = false;
@@ -22,6 +26,9 @@ async function gracefulShutdown(signal: string) {
 
   isDraining = true;
   app.locals.isDraining = true;
+  
+  // Stop background jobs before disconnecting DB
+  try { await stopCleanup(); } catch {}
 
   server.close(async (err?: Error) => {
     if (err) {
