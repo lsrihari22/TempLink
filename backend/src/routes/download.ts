@@ -32,7 +32,7 @@ router.get('/file/:token/download', validateTokenParam, async (req: Request, res
   const stream = storageService.getStream(record.storageKey);
   stream.on('error', (err) => {
     console.error('Stream error:', err);
-    return res.status(410).json({ error: { code: 'GONE', message: 'File not available' } });
+    return res.status(410).json({ error: { code: 'DELETED', message: 'File not available' } });
   });
 
   stream.pipe(res);

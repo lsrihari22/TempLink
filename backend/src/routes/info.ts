@@ -12,7 +12,7 @@ router.get('/file/:token/info', validateTokenParam, async (req: Request, res: Re
     return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'File not found' } });
   }
   if (info.status !== 'active') {
-    return res.status(410).json({ error: { code: 'GONE', message: `File ${info.status}` }, data: info });
+    return res.status(410).json({ error: { code: info.status==='deleted'? 'DELETED' : 'EXPIRED', message: `File ${info.status}`}});
   }
   return res.status(200).json({ data: info });
 });

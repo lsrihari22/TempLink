@@ -39,7 +39,7 @@ const DEFAULT_EXPIRY_HOURS = toInt(process.env.DEFAULT_EXPIRY_HOURS, 24);
 const DEFAULT_MAX_DOWNLOADS = toInt(process.env.DEFAULT_MAX_DOWNLOADS, 1);
 const MAX_DOWNLOADS_CAP = toInt(process.env.MAX_DOWNLOADS_CAP, 10);
 const STORAGE_TYPE = (process.env.STORAGE_TYPE?.trim().toLowerCase() === 's3' ? 's3' : 'local') as 'local' | 's3';
-const STORAGE_LOCAL_DIR = process.env.STORAGE_LOCAL_DIR?.trim() || pathResolveUploads();
+const STORAGE_LOCAL_DIR = "../uploads"; //pathResolveUploads(); //process.env.STORAGE_LOCAL_DIR?.trim() || pathResolveUploads();
 const CORS_ORIGINS = toListSet(process.env.CORS_ORIGINS);
 const CLEANUP_INTERVAL_MS = toInt(process.env.CLEANUP_INTERVAL_MS,  10 * 1000); // 1min for testin; default: Change later to 5/10 minutes
 const CLEANUP_BATCH_SIZE = toInt(process.env.CLEANUP_BATCH_SIZE, 100);
