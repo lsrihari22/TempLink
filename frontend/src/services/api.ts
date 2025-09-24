@@ -1,4 +1,4 @@
-import type { FileInfoResponse, FileUploadResponse } from "@templink/shared/types";
+import type { FileInfoResponse, FileUploadResponse } from "../../../shared/types/api";
 const API = import.meta.env.VITE_API_URL as string;
 
 export async function getInfo(token: string): Promise<FileInfoResponse> {

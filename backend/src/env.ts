@@ -48,7 +48,7 @@ const CLEANUP_PURGE_AFTER_HOURS = toInt(process.env.CLEANUP_PURGE_AFTER_HOURS, 2
 
 function pathResolveUploads() {
   // Default to project uploads directory
-  return 'uploads';
+  return '..uploads';
 }
 
 export const env: EnvConfig = {

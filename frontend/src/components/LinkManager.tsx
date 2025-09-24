@@ -1,2 +1,8 @@
-// TODO: LinkManager component (show/copy token & link)
 
+export default function LinkManager() {
+    return (
+        <div>
+            Link Manager Component
+        </div>
+    )
+}

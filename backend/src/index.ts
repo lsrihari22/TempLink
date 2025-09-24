@@ -7,6 +7,12 @@ const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
+// Configure HTTP server timeouts for better resilience
+// Keep connections alive but avoid hanging forever
+// Note: available on Node http.Server; cast to any to avoid type friction
+(server as any).keepAliveTimeout = 75_000; // 75s, slightly below common LB idle timeouts
+(server as any).headersTimeout = 76_000;   // must be greater than keepAliveTimeout
+
 // Start background cleanup job
 startCleanup();
 
