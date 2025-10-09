@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import type { UploadData } from '@templink/shared/types'
 
 type LinkManagerProps = {
@@ -43,6 +44,15 @@ export default function LinkManager({ upload }: LinkManagerProps) {
       </div>
 
       <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">Recently uploaded</div>
+          <Link
+            to={`/${upload.token}`}
+            className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            View details
+          </Link>
+        </div>
         <div>
           <div className="text-xs uppercase tracking-wide text-gray-500">Token</div>
           <div className="mt-1 flex items-center gap-2">

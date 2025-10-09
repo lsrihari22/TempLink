@@ -35,7 +35,7 @@ export async function uploadFormData(
       '/upload',
       fd,
       {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        // Let the browser set the correct multipart boundary header
         signal: options.signal,
         onUploadProgress: (event) => handleProgress(event, options.onProgress),
       },

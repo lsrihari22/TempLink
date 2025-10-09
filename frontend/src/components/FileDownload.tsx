@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 
 import { getInfo } from '../services/api'
@@ -44,36 +44,27 @@ export default function FileDownload() {
   const validToken = useMemo(() => TOKEN_REGEX.test(token), [token])
   const [infoState, setInfoState] = useState<InfoState>({ status: 'idle' })
 
-  useEffect(() => {
+  const fetchInfo = useCallback(() => {
     if (!token || !validToken) {
       setInfoState({ status: 'idle' })
       return
     }
-
     let cancelled = false
     setInfoState({ status: 'loading' })
-
     getInfo(token)
       .then((res) => {
         if (cancelled) return
-        if ('error' in res) {
-          setInfoState({ status: 'error', error: res.error })
-        } else {
-          setInfoState({ status: 'success', data: res.data })
-        }
+        if ('error' in res) setInfoState({ status: 'error', error: res.error })
+        else setInfoState({ status: 'success', data: res.data })
       })
       .catch(() => {
         if (cancelled) return
-        setInfoState({
-          status: 'error',
-          error: { code: 'NETWORK', message: 'Network error' },
-        })
+        setInfoState({ status: 'error', error: { code: 'NETWORK', message: 'Network error' } })
       })
-
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
   }, [token, validToken])
+
+  useEffect(() => { fetchInfo() }, [fetchInfo])
 
   if (!token) {
     return <div className="p-6">Missing token.</div>
@@ -93,6 +84,13 @@ export default function FileDownload() {
       <div className="p-6 space-y-3">
         <div className="text-lg font-semibold">Unable to load file</div>
         <p className="text-sm text-gray-500">{message}</p>
+        <button
+          className="rounded border border-gray-300 px-3 py-1.5 text-sm hover:bg-gray-100"
+          onClick={() => fetchInfo()}
+          type="button"
+        >
+          Retry
+        </button>
         <Link className="text-blue-600 underline" to="/">
           Go back to uploads
         </Link>
@@ -106,6 +104,10 @@ export default function FileDownload() {
 
   const details = infoState.data
   const downloadUrl = `${import.meta.env.VITE_API_URL}/file/${token}/download`
+  function onDownloadClick() {
+    // After download, refetch to update remaining count
+    setTimeout(() => fetchInfo(), 1500)
+  }
 
   return (
     <div className="p-6 space-y-4">
@@ -133,6 +135,7 @@ export default function FileDownload() {
       <a
         className="inline-flex items-center justify-center rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         href={downloadUrl}
+        onClick={onDownloadClick}
       >
         Download file
       </a>

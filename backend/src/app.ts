@@ -1,5 +1,5 @@
 import express from 'express';
-import cors from 'cors';
+import cors, { type CorsOptions } from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import uploadRoutes from './routes/upload';
@@ -16,18 +16,33 @@ app.set('trust proxy', 1);
 
 // Security, CORS, and request logging
 app.use(helmet());
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      const allowed = env.CORS_ORIGINS;
-      if (!allowed || allowed.size === 0) return callback(null, false);
-      if (!origin) return callback(null, true); // non-browser or same-origin
-      const ok = allowed.has(String(origin).toLowerCase());
+const corsOptions: CorsOptions = {
+  origin: (origin, callback) => {
+    const allowed = env.CORS_ORIGINS;
+    const isDev = process.env.NODE_ENV !== 'production';
+    const o = origin ? String(origin).toLowerCase() : '';
+
+    if (!origin) return callback(null, true);
+
+    if (allowed && allowed.size > 0) {
+      const ok = allowed.has(o);
       return callback(null, ok);
-    },
-    credentials: true,
-  })
-);
+    }
+
+    if (isDev) return callback(null, true);
+
+    return callback(null, false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['content-type', 'authorization', 'x-requested-with'],
+  optionsSuccessStatus: 204,
+};
+
+// Apply CORS for all routes
+app.use(cors(corsOptions));
+// Ensure preflight (OPTIONS) requests receive CORS headers (Express 5 + path-to-regexp@8)
+app.options(/.*/, cors(corsOptions));
 app.use(morgan('combined'));
 
 app.get('/healthz', (_req, res) => {
