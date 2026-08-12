@@ -113,7 +113,7 @@ export async function consumeDownload(token: string): Promise<{ record: FileReco
       SET "downloadCount" = "downloadCount" + 1
       WHERE "token" = ${token}
         AND NOT "isDeleted"
-        AND "expiresAt" > NOW()
+        AND "expiresAt" > (NOW() AT TIME ZONE 'UTC')
         AND "downloadCount" < "maxDownloads"
       RETURNING *
     `;

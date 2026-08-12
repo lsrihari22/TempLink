@@ -3,7 +3,5 @@ node_modules/
 uploads/
 dist/
 build/
-pnpm-lock.yaml
 .DS_Store
 Notes
-
